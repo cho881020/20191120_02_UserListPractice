@@ -1,5 +1,6 @@
 package com.tjoeun.a20191120_02_userlistpractice.datas
 
+import android.util.Log
 import org.json.JSONObject
 import java.io.Serializable
 import java.text.SimpleDateFormat
@@ -10,6 +11,7 @@ class User : Serializable {
     var loginId = ""
     var name = ""
     var createdAt = Calendar.getInstance()
+    var expireDate:Calendar? = null
     var category:Category? = null
 
     val printTimeFormat = SimpleDateFormat("yy년 M월 d일")
@@ -18,8 +20,19 @@ class User : Serializable {
         return printTimeFormat.format(this.createdAt.time)
     }
 
+    fun getExpireDateString() : String {
+        if (this.expireDate != null) {
+            return expireDateParseFormat.format(this.expireDate!!.time)
+        }
+        else {
+            return "만료 일자가 설정되지 않았습니다."
+        }
+
+    }
+
     companion object {
         val serverTimeParseFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val expireDateParseFormat = SimpleDateFormat("yyyy-MM-dd")
 
         fun getUserFromJson(userJson : JSONObject) : User {
             var userObject = User()
@@ -34,6 +47,22 @@ class User : Serializable {
 //              2019-09-07 07:32:52
 
             userObject.createdAt.time = serverTimeParseFormat.parse(testCreatedAt) // Date 타입으로 변환. 그 결과를 createdAt에 세팅
+
+
+            if (!userJson.isNull("expire_date")) {
+                val expireDateStr = userJson.getString("expire_date")
+                Log.d("만료일자", expireDateStr)
+
+                userObject.expireDate = Calendar.getInstance()
+
+                userObject.expireDate?.time = expireDateParseFormat.parse(expireDateStr)
+
+            }
+            else {
+                userObject.expireDate = null
+            }
+
+
 
             userObject.category = Category.getCategoryFromJson(userJson.getJSONObject("category"))
             return userObject

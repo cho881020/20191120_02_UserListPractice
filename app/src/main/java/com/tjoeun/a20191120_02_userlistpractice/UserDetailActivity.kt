@@ -42,6 +42,8 @@ class UserDetailActivity : BaseActivity() {
 
         createdAtTxt.text = mUser?.getFormattedCreatedAt()
 
+        expireAtTxt.text = mUser?.getExpireDateString()
+
     }
 
     fun  getCategoryListFromServer() {
